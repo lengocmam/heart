@@ -116,6 +116,16 @@ function draw() {
 
   ctx.globalCompositeOperation = 'source-over';
 
+  // chu o giua trai tim
+  ctx.font = `bold ${Math.min(w, h) * 0.045}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.85 + beat})`;
+  ctx.shadowColor = 'rgba(255, 90, 140, 0.9)';
+  ctx.shadowBlur = 20;
+  ctx.fillText('đồ đáng ghét', cx, cy);
+  ctx.shadowBlur = 0;
+
   requestAnimationFrame(draw);
 }
 
