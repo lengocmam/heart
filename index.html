@@ -2,26 +2,42 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Heartbeat Particle Animation</title>
+<title>Dreamy Universe</title>
 <style>
   html, body {
     margin: 0;
     height: 100%;
-    background: #0a0a0a;
+    background: #050208;
     overflow: hidden;
+    cursor: pointer;
   }
   canvas {
     display: block;
     width: 100vw;
     height: 100vh;
   }
+  #hint {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.55);
+    font-family: sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .hide { opacity: 0; }
 </style>
 </head>
 <body>
-<canvas id="heart"></canvas>
+<canvas id="uni"></canvas>
+<div id="hint">Chạm vào địa cầu ✨</div>
 <script>
-const canvas = document.getElementById('heart');
+const canvas = document.getElementById('uni');
 const ctx = canvas.getContext('2d');
+const hint = document.getElementById('hint');
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -30,105 +46,389 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// Toa do tim theo phuong trinh tham so trai tim
-function heartPoint(t) {
-  const x = 16 * Math.pow(Math.sin(t), 3);
-  const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-  return { x, y };
-}
+// Cac dam may tinh van nhieu mau, troi nhe qua lai
+const nebulae = [
+  { xr: 0.12, yr: 0.18, rr: 0.42, hue: 150, sat: 90, light: 45, drift: 0.00015, phase: 0 },
+  { xr: 0.85, yr: 0.15, rr: 0.38, hue: 310, sat: 90, light: 50, drift: 0.00012, phase: 2 },
+  { xr: 0.5,  yr: 0.45, rr: 0.5,  hue: 285, sat: 85, light: 40, drift: 0.0001,  phase: 4 },
+  { xr: 0.9,  yr: 0.7,  rr: 0.4,  hue: 195, sat: 90, light: 45, drift: 0.00018, phase: 1 },
+  { xr: 0.1,  yr: 0.75, rr: 0.4,  hue: 100, sat: 85, light: 40, drift: 0.00014, phase: 3 }
+];
 
-const PARTICLE_COUNT = 13000;
-let particles = [];
-
-function initParticles() {
-  particles = [];
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const t = Math.random() * Math.PI * 2;
-    const base = heartPoint(t);
-    // chi 12% hat bam sat vien, con lai rai deu khap khoi trai tim
-    const isFill = Math.random() < 0.88;
-    let bx, by;
-    if (isFill) {
-      // sqrt(random) cho phan bo deu hon theo dien tich, khong don ve tam hay vien
-      const pull = Math.sqrt(Math.random());
-      bx = base.x * (1 - pull * 0.98);
-      by = base.y * (1 - pull * 0.98) + pull * 2.2;
-    } else {
-      bx = base.x;
-      by = base.y;
-    }
-    const jitterAmount = 0.4;
-    bx += (Math.random() - 0.5) * jitterAmount;
-    by += (Math.random() - 0.5) * jitterAmount;
-
-    particles.push({
-      bx, by,
-      // hat bat dau bay tan loan khap noi, sau do se hoi tu dan ve trai tim
-      x: (Math.random() - 0.5) * 90,
-      y: (Math.random() - 0.5) * 90,
-      size: 0.6 + Math.random() * 1.3,
-      speed: 0.015 + Math.random() * 0.02,
-      hue: 335 + Math.random() * 20,
-      baseAlpha: 0.5 + Math.random() * 0.4,
-      twinkle: Math.random() * Math.PI * 2
+// Sao nen, kich thuoc va do sang khac nhau
+const STAR_COUNT = 500;
+let stars = [];
+function initStars() {
+  stars = [];
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random(),
+      y: Math.random(),
+      size: 0.4 + Math.random() * 1.4,
+      twinkle: Math.random() * Math.PI * 2,
+      speed: 0.02 + Math.random() * 0.03
     });
   }
 }
-initParticles();
+initStars();
+
+function heartShape(ctx, size) {
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI * 2 + 0.2; a += 0.35) {
+    const hx = 16 * Math.pow(Math.sin(a), 3);
+    const hy = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a));
+    if (a === 0) ctx.moveTo(hx * size / 16, hy * size / 16);
+    else ctx.lineTo(hx * size / 16, hy * size / 16);
+  }
+  ctx.closePath();
+}
+function easeOutCubic(x) { return 1 - Math.pow(1 - x, 3); }
+
+// ===== Trang thai chinh: chi khi cham vao dia cau moi "kich hoat" hang ngan trai tim =====
+let activated = false;
+let hearts = [];
+const TOTAL_HEARTS = 3200;
+let spawnQueue = 0;
+
+function spawnHeart() {
+  const edgeAngle = Math.random() * Math.PI * 2;
+  return {
+    state: 'incoming',
+    progress: -Math.random() * 3,   // tri hoan ngau nhien de hat khong bay vao cung luc
+    duration: 70 + Math.random() * 110,
+    edgeAngle,
+    orbitRel: 0.21 + Math.random() * 0.81,
+    tilt: 0.18 + Math.random() * 1.0,
+    angle: Math.random() * Math.PI * 2,
+    dir: Math.random() < 0.5 ? 1 : -1,
+    angSpeed: 0.08 + Math.random() * 0.16,
+    size: 3 + Math.random() * 7,
+    hue: [0, 190, 320][Math.floor(Math.random() * 3)],
+    x: 0, y: 0, z: 0
+  };
+}
+
+function activate() {
+  if (activated) return;
+  activated = true;
+  hint.classList.add('hide');
+  spawnQueue = TOTAL_HEARTS;
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  const dx = e.clientX - canvas.width / 2;
+  const dy = e.clientY - canvas.height / 2;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const planetR = Math.min(canvas.width, canvas.height) * 0.075;
+  if (!activated && dist < planetR * 2.2) activate();
+});
+
+// ===== Trai tim xep thanh chu "Khanh Huyen", bay vao dung diem sau khi zoom ra =====
+let textHearts = [];
+let textHeartsSpawned = false;
+
+function buildTextPoints(w, h) {
+  const off = document.createElement('canvas');
+  off.width = w;
+  off.height = h;
+  const octx = off.getContext('2d');
+  octx.fillStyle = '#fff';
+  octx.font = `bold ${Math.min(w, h) * 0.1}px sans-serif`;
+  octx.textAlign = 'center';
+  octx.textBaseline = 'middle';
+  octx.fillText('Khánh Huyền', w / 2, h / 2);
+  const data = octx.getImageData(0, 0, w, h).data;
+  const pts = [];
+  const stride = 3;
+  for (let y = 0; y < h; y += stride) {
+    for (let x = 0; x < w; x += stride) {
+      if (data[(y * w + x) * 4 + 3] > 120) {
+        pts.push({ x: x - w / 2, y: y - h / 2 });
+      }
+    }
+  }
+  // xao tron de thu tu bay vao ngau nhien, khong chay tuan tu tu trai qua phai
+  for (let i = pts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pts[i], pts[j]] = [pts[j], pts[i]];
+  }
+  return pts;
+}
+
+function spawnTextHeart(target) {
+  const edgeAngle = Math.random() * Math.PI * 2;
+  return {
+    state: 'incoming',
+    progress: -Math.random() * 2,
+    duration: 55 + Math.random() * 70,
+    edgeAngle,
+    target,
+    size: 4 + Math.random() * 4,
+    hue: [0, 330, 340][Math.floor(Math.random() * 3)],
+    twinkle: Math.random() * Math.PI * 2,
+    x: 0, y: 0
+  };
+}
+
+// Hanh tinh trung tam kieu Sao Tho, nghieng nhe, phat sang mem, LUON tu quay quanh truc
+const spots = [0, 1, 2, 3, 4, 5, 6].map(i => ({
+  baseAngle: (Math.PI * 2 * i) / 7 + Math.random() * 0.4,
+  yOff: (Math.random() - 0.5) * 0.75,
+  size: 0.13 + Math.random() * 0.16,
+  dark: Math.random() < 0.5
+}));
+
+function drawPlanet(cx, cy, r, tilt, glowPulse, spin, brighten) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  const glow = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, r * 3.2 * (1 + glowPulse * 0.15));
+  glow.addColorStop(0, 'rgba(255, 110, 190, 0.55)');
+  glow.addColorStop(0.5, 'rgba(255, 110, 190, 0.18)');
+  glow.addColorStop(1, 'rgba(255, 110, 190, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 3.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.rotate(tilt);
+
+  ctx.save();
+  ctx.rotate(spin); // vanh dai xoay tron day du 360 do quanh hanh tinh
+  ctx.scale(1, 0.32);
+  ctx.setLineDash([r * 0.42, r * 0.3]);
+  ctx.lineDashOffset = -spin * r * 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 2.1, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255, 230, 250, 0.85)';
+  ctx.lineWidth = r * 0.09;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 1.75, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255, 200, 230, 0.55)';
+  ctx.lineWidth = r * 0.05;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  const body = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
+  body.addColorStop(0, '#ffe3f2');
+  body.addColorStop(0.5, '#ff9ed0');
+  body.addColorStop(1, '#e8399e');
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = body;
+  ctx.fill();
+
+  ctx.save();
+  ctx.clip();
+  // dai sang chinh chay doc theo be mat, day la dau hieu ro nhat cho thay hanh tinh dang quay
+  for (let band = 0; band < 3; band++) {
+    const bandAngle = spin * 1.4 + band * (Math.PI * 2 / 3);
+    const bsx = Math.sin(bandAngle) * r * 0.85;
+    const bSquish = Math.cos(bandAngle);
+    if (bSquish > -0.15) {
+      const bAlpha = Math.max(0, bSquish) * 0.5;
+      ctx.beginPath();
+      ctx.ellipse(bsx, 0, r * 0.16 * Math.max(0.15, Math.abs(bSquish)), r * 1.05, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 235, 250, ${bAlpha})`;
+      ctx.fill();
+    }
+  }
+  for (const s of spots) {
+    const ang = s.baseAngle + spin;
+    const sx = Math.sin(ang) * r * 0.82;
+    const squish = Math.cos(ang);
+    if (squish <= 0) continue;
+    const sy = s.yOff * r;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, s.size * r * squish, s.size * r * 0.55, 0, 0, Math.PI * 2);
+    ctx.fillStyle = s.dark
+      ? `rgba(120, 10, 70, ${0.4 * squish})`
+      : `rgba(255, 225, 245, ${0.35 * squish})`;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.rotate(spin);
+  ctx.scale(1, 0.32);
+  ctx.setLineDash([r * 0.35, r * 0.22]);
+  ctx.lineDashOffset = -spin * r * 1.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 1.45, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255, 235, 250, 0.9)';
+  ctx.lineWidth = r * 0.1;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  ctx.restore();
+}
 
 let t = 0;
-
+let zoom = 1;
+let zoomDelay = 0; // dem nguoc mot nhip nghi ngan sau khi tim bay vao het, truoc khi zoom ra
 function draw() {
   const w = canvas.width;
   const h = canvas.height;
+  t += 0.016;
 
-  // hieu ung mo dan nhe, khong lam nen qua toi
-  ctx.fillStyle = 'rgba(8, 8, 10, 0.35)';
+  // nen den tuyet doi (ngoai vung zoom, luon phu kin man hinh)
+  ctx.fillStyle = '#050208';
   ctx.fillRect(0, 0, w, h);
-
-  t += 0.02;
-
-  // nhip dap: hai xung nhu nhip tim that (lub-dub)
-  const beat = Math.pow(Math.max(0, Math.sin(t * 2)), 8) * 0.14
-             + Math.pow(Math.max(0, Math.sin(t * 2 - 0.5)), 12) * 0.08;
-  const scale = Math.min(w, h) / 46 * (1 + beat);
 
   const cx = w / 2;
   const cy = h / 2;
 
+  // chi bat dau lui ra xa (zoom out) khi TAT CA trai tim da bay vao va on dinh quy dao
+  const allHeartsArrived = activated && spawnQueue <= 0 && hearts.length > 0 &&
+    hearts.every(p => p.state === 'orbit');
+  if (allHeartsArrived) {
+    zoomDelay += 1;
+    if (zoomDelay > 60 && zoom > 0.62) { // nghi khoang 1 giay cho tim quay on dinh roi moi zoom
+      zoom -= 0.0016;
+      if (zoom < 0.62) zoom = 0.62;
+    }
+  }
+  // do sang/mo dan cua dia cau va chu, tang dan theo tien do zoom ra (khong phai theo thoi gian cho)
+  const zoomProgress = allHeartsArrived ? Math.min(1, Math.max(0, (1 - zoom) / (1 - 0.62))) : 0;
+  const fadeIn = zoomProgress;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(zoom, zoom);
+  ctx.translate(-cx, -cy);
+
+  // cac dam may mau nhu aurora, hoi troi qua lai
   ctx.globalCompositeOperation = 'lighter';
-
-  for (const p of particles) {
-    p.x += (p.bx - p.x) * p.speed;
-    p.y += (p.by - p.y) * p.speed;
-
-    const px = cx + p.x * scale;
-    const py = cy + p.y * scale;
-
-    p.twinkle += 0.04;
-    const alpha = p.baseAlpha * (0.75 + Math.sin(p.twinkle) * 0.25) + beat * 0.4;
-
+  for (const n of nebulae) {
+    const ncx = w * n.xr + Math.sin(t * 20 * n.drift + n.phase) * w * 0.05;
+    const ncy = h * n.yr + Math.cos(t * 20 * n.drift + n.phase) * h * 0.05;
+    const r = Math.min(w, h) * n.rr;
+    const g = ctx.createRadialGradient(ncx, ncy, 0, ncx, ncy, r);
+    g.addColorStop(0, `hsla(${n.hue}, ${n.sat}%, ${n.light}%, 0.55)`);
+    g.addColorStop(0.6, `hsla(${n.hue}, ${n.sat}%, ${n.light}%, 0.18)`);
+    g.addColorStop(1, `hsla(${n.hue}, ${n.sat}%, ${n.light}%, 0)`);
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(px, py, p.size * (1 + beat * 0.6), 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${p.hue}, 95%, 68%, ${Math.min(1, Math.max(0, alpha))})`;
+    ctx.arc(ncx, ncy, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
   ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(3, 1, 6, 0.28)';
+  ctx.fillRect(0, 0, w, h);
 
-  // chu o giua trai tim
-  ctx.font = `bold ${Math.min(w, h) * 0.045}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = `rgba(255, 255, 255, ${0.85 + beat})`;
-  ctx.shadowColor = 'rgba(255, 90, 140, 0.9)';
-  ctx.shadowBlur = 20;
-  ctx.fillText('đồ đáng ghét', cx, cy);
-  ctx.shadowBlur = 0;
+  ctx.globalCompositeOperation = 'lighter';
+
+  for (const s of stars) {
+    s.twinkle += s.speed;
+    const a = 0.3 + Math.sin(s.twinkle) * 0.3;
+    ctx.beginPath();
+    ctx.arc(s.x * w, s.y * h, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, a)})`;
+    ctx.fill();
+  }
+
+  const pulse = (Math.sin(t * 0.8) + 1) / 2;
+  const planetR = Math.min(w, h) * 0.075;
+  const minDim = Math.min(w, h);
+  const maxDim = Math.max(w, h);
+  const spin = t * 0.3; // dia cau LUON tu quay, bat ke da kich hoat hay chua
+
+  // nho dan hat moi tu hang cho vao mang hearts, tranh giat khung hinh khi tao hang ngan hat cung luc
+  let toSpawn = Math.min(60, spawnQueue);
+  for (let i = 0; i < toSpawn; i++) {
+    hearts.push(spawnHeart());
+  }
+  spawnQueue -= toSpawn;
+
+  for (const p of hearts) {
+    if (p.state === 'incoming') {
+      p.progress += 1 / p.duration;
+      if (p.progress <= 0) continue; // van con dang cho trong hang doi tri hoan
+      if (p.progress >= 1) {
+        p.state = 'orbit';
+        p.progress = 1;
+      }
+      const e = easeOutCubic(Math.min(1, Math.max(0, p.progress)));
+      const spawnX = cx + Math.cos(p.edgeAngle) * maxDim * 0.85;
+      const spawnY = cy + Math.sin(p.edgeAngle) * maxDim * 0.85;
+      const curAngle = p.angle + p.dir * p.angSpeed * Math.max(0, p.progress) * 2;
+      const targetX = cx + Math.cos(curAngle) * p.orbitRel * minDim;
+      const targetY = cy + Math.sin(curAngle) * p.orbitRel * minDim * p.tilt;
+      p.x = spawnX + (targetX - spawnX) * e;
+      p.y = spawnY + (targetY - spawnY) * e;
+      p.angle = curAngle;
+      p.z = Math.sin(curAngle);
+    } else {
+      p.angle += p.dir * p.angSpeed * 0.016;
+      p.x = cx + Math.cos(p.angle) * p.orbitRel * minDim;
+      p.y = cy + Math.sin(p.angle) * p.orbitRel * minDim * p.tilt;
+      p.z = Math.sin(p.angle);
+    }
+  }
+
+  function renderHeart(p) {
+    if (p.state === 'incoming' && p.progress <= 0) return;
+    const alpha = 0.55 + Math.sin(t * 3 + p.angle) * 0.2;
+    ctx.beginPath();
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    heartShape(ctx, p.size);
+    ctx.fillStyle = `hsla(${p.hue}, 90%, 82%, ${Math.max(0, alpha)})`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  for (const p of hearts) if (p.z < 0) renderHeart(p);
+  drawPlanet(cx, cy, planetR, -0.35, pulse, spin, fadeIn);
+  for (const p of hearts) if (p.z >= 0) renderHeart(p);
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
+
+  // ngay khi bat dau zoom ra, tach mot dan tim rieng bay vao xep thanh hinh chu "Khanh Huyen"
+  if (allHeartsArrived && !textHeartsSpawned) {
+    textHeartsSpawned = true;
+    const pts = buildTextPoints(w, h).slice(0, 2200);
+    textHearts = pts.map(pt => spawnTextHeart({ x: cx + pt.x, y: cy + pt.y }));
+  }
+
+  if (textHeartsSpawned) {
+    for (const p of textHearts) {
+      if (p.state === 'incoming') {
+        p.progress += 1 / p.duration;
+        if (p.progress <= 0) continue;
+        if (p.progress >= 1) { p.state = 'settled'; p.progress = 1; }
+        const e = easeOutCubic(Math.min(1, Math.max(0, p.progress)));
+        const spawnX = cx + Math.cos(p.edgeAngle) * Math.max(w, h) * 0.8;
+        const spawnY = cy + Math.sin(p.edgeAngle) * Math.max(w, h) * 0.8;
+        p.x = spawnX + (p.target.x - spawnX) * e;
+        p.y = spawnY + (p.target.y - spawnY) * e;
+      } else {
+        p.twinkle += 0.05;
+        p.x = p.target.x;
+        p.y = p.target.y;
+      }
+    }
+    for (const p of textHearts) {
+      if (p.state === 'incoming' && p.progress <= 0) continue;
+      const alpha = p.state === 'settled' ? 0.65 + Math.sin(p.twinkle) * 0.35 : 0.9;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.shadowColor = `hsla(${p.hue}, 95%, 75%, 0.9)`;
+      ctx.shadowBlur = p.size * 2;
+      heartShape(ctx, p.size);
+      ctx.fillStyle = `hsla(${p.hue}, 95%, 85%, ${Math.max(0, alpha)})`;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
 
   requestAnimationFrame(draw);
 }
-
 draw();
 </script>
 </body>
