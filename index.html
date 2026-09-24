@@ -3,14 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gửi em – Lồng đèn Trung Thu</title>
+<title>Gửi em iu – Lồng đèn Trung Thu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
-body{background:radial-gradient(circle at 50% 34%,rgba(255,236,190,.16),transparent 42%),linear-gradient(#0d0a2a,#1c0f3d 70%,#2a1247);color:#fff;font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body{background:radial-gradient(ellipse at 50% 100%,rgba(190,60,140,.35),transparent 55%),linear-gradient(#070522,#170d3a 55%,#3a1450);color:#fff;font-family:"Be Vietnam Pro","Segoe UI",Roboto,Arial,sans-serif}
+#moon{position:fixed;border-radius:50%;z-index:0;pointer-events:none;background:radial-gradient(circle at 38% 36%,#fffbe8,#fbeab8 55%,#e9cf93);box-shadow:0 0 60px 20px rgba(255,238,190,.35),0 0 180px 80px rgba(255,220,160,.16)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:45;background:radial-gradient(ellipse at 50% 55%,transparent 55%,rgba(4,2,16,.6))}
 #c{position:fixed;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
-h1{position:fixed;z-index:40;top:14px;left:0;right:0;text-align:center;font:600 clamp(18px,3.2vw,28px)/1.2 Georgia,"Times New Roman",serif;letter-spacing:.02em;text-shadow:0 0 16px rgba(255,200,120,.7);pointer-events:none}
-#hint{position:fixed;z-index:40;bottom:14px;left:0;right:0;text-align:center;font-size:14px;color:#ffe2b0;pointer-events:none;text-shadow:0 1px 6px #000}
+h1{position:fixed;z-index:40;top:12px;left:0;right:0;text-align:center;font:600 clamp(34px,6vw,56px)/1 "Dancing Script","Brush Script MT",cursive;color:#ffe3a8;text-shadow:0 0 18px rgba(255,170,90,.75),0 0 46px rgba(255,120,160,.4);pointer-events:none}
+h1 small{display:block;margin-top:6px;font:400 clamp(12px,2vw,15px) "Be Vietnam Pro",sans-serif;letter-spacing:.06em;color:#f0d7ff;text-shadow:none;opacity:.85}
+#hint{position:fixed;z-index:40;bottom:16px;left:50%;transform:translateX(-50%);max-width:92vw;text-align:center;padding:9px 18px;border-radius:999px;font-size:13.5px;color:#ffe9c4;pointer-events:none;background:rgba(30,12,60,.55);border:1px solid rgba(255,214,150,.3);backdrop-filter:blur(8px)}
 
 /* lồng đèn */
 .lantern{position:fixed;left:0;top:0;width:var(--w);height:calc(var(--w)*1.75);padding:0;border:0;background:none;cursor:pointer;will-change:transform;-webkit-tap-highlight-color:transparent}
@@ -19,40 +24,51 @@ h1{position:fixed;z-index:40;top:14px;left:0;right:0;text-align:center;font:600 
 .in{position:relative;display:block;width:100%;height:100%;transition:transform .25s;animation:gw 2.6s ease-in-out var(--dl,0s) infinite alternate}
 .lantern:hover .in{transform:scale(1.12)}
 .in i{position:absolute;display:block}
-.cap{left:10%;width:80%;top:0;height:11%;background:#f5b942;clip-path:polygon(14% 0,86% 0,100% 100%,0 100%)}
+.cap{left:8%;width:84%;top:0;height:11%;background:linear-gradient(90deg,#a86a12,#ffe08a 45%,#a86a12);clip-path:polygon(14% 0,86% 0,100% 100%,0 100%)}
 .cap.bt{top:66%;clip-path:polygon(0 0,100% 0,86% 100%,14% 100%)}
-.bd{left:0;width:100%;top:11%;height:56%;border-radius:14px;background:linear-gradient(90deg,var(--c1),var(--c2) 45%,var(--c1));box-shadow:inset 0 0 18px rgba(255,255,220,.65)}
-.bd::after{content:"";position:absolute;inset:0;border-radius:14px;background:linear-gradient(transparent 44%,rgba(255,215,100,.75) 45% 55%,transparent 56%)}
-.ts{left:44%;width:12%;top:77%;height:23%;background:linear-gradient(#f5b942,#c0392b);border-radius:0 0 4px 4px}
+.bd{left:0;width:100%;top:11%;height:56%;border-radius:24%/14%;background:radial-gradient(ellipse at 50% 52%,#fff7cf 0,var(--c2) 40%,var(--c1) 100%);box-shadow:inset 0 0 20px rgba(255,255,220,.55),inset 0 -10px 18px rgba(80,0,20,.35)}
+.bd::before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(90deg,transparent 0 18%,rgba(90,10,25,.3) 18% 20%),linear-gradient(transparent 10%,rgba(255,215,110,.85) 10% 13%,transparent 13% 87%,rgba(255,215,110,.85) 87% 90%,transparent 90%)}
+.bd::after{content:attr(data-e);position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--w)*.36);color:#fff3c4;text-shadow:0 0 10px #fff,0 0 22px var(--c2)}
+.ts{left:46%;width:8%;top:77%;height:18%;background:linear-gradient(#f5b942,#c0392b)}
+.ts::after{content:"";position:absolute;left:-110%;bottom:-6px;width:320%;height:45%;background:linear-gradient(#ffcf66,#c0392b);border-radius:0 0 50% 50%}
+.lantern::before{content:"";position:absolute;left:-70%;top:-15%;width:240%;height:150%;background:radial-gradient(circle,var(--c2) 0,transparent 60%);opacity:.26;pointer-events:none;mix-blend-mode:screen}
+@keyframes pl{50%{opacity:.55}}
+.lantern:not(.seen)::before{animation:pl 2.2s ease-in-out var(--dl,0s) infinite}
 .lantern.seen .bd{filter:saturate(.7) brightness(.85)}
 
 /* hộp lời chúc */
 #modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,3,20,.72);backdrop-filter:blur(4px);z-index:50}
 #modal.on{display:flex}
-.card{max-height:94vh;overflow:auto;touch-action:pan-y;width:min(420px,100%);background:#1e1140;border:1px solid rgba(255,200,120,.35);border-radius:18px;overflow:hidden;box-shadow:0 0 50px rgba(255,150,90,.35);animation:pop .3s ease-out}
-@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.card{position:relative;max-height:94vh;overflow:auto;touch-action:pan-y;width:min(440px,100%);background:linear-gradient(160deg,rgba(52,22,96,.96),rgba(30,12,64,.97));border:1px solid rgba(255,214,150,.45);border-radius:22px;box-shadow:0 0 0 6px rgba(255,214,150,.08),0 30px 80px rgba(0,0,0,.6),0 0 70px rgba(255,140,120,.3);animation:pop .7s cubic-bezier(.2,.9,.25,1.05)}
+@keyframes pop{from{transform:translate(var(--dx,0),var(--dy,0)) scale(.08) rotate(-8deg);opacity:0}60%{opacity:1}to{transform:none;opacity:1}}
+.pw{position:relative;margin:12px 12px 0;border-radius:16px;overflow:hidden}
+.pw::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(30,12,64,.9));pointer-events:none}
 .card img{display:block;width:100%;aspect-ratio:400/260;object-fit:cover;background:#2b1552}
-.card .tx{padding:18px 22px 8px;text-align:center}
-.card h2{font:700 22px/1.25 Georgia,serif;color:#ffd98a;margin-bottom:10px}
-.card p{font-size:16.5px;line-height:1.6;color:#f6ecff}
+.card .tx{padding:6px 26px 4px;text-align:center}
+.card h2{font:600 34px/1.15 "Dancing Script",cursive;color:#ffd98a;margin-bottom:6px;text-shadow:0 0 18px rgba(255,170,90,.5)}
+.orn{color:#ff8fb0;font-size:14px;margin-bottom:10px}
+.card p{font-size:18px;line-height:1.75;color:#f8eeff}
+.card p span{opacity:0;display:inline-block;animation:fi .6s ease forwards}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 18px}
 .nav span{font-size:13px;color:#c9b6ea}
 .nav button{border:0;border-radius:999px;padding:9px 16px;font:600 14px inherit;font-family:inherit;color:#2a1247;background:#ffd98a;cursor:pointer}
 .nav button.ghost{background:transparent;color:#ffd98a;border:1px solid rgba(255,217,138,.5)}
 .nav button:focus-visible{outline:3px solid #fff}
-@media (prefers-reduced-motion:reduce){.in,.card{animation:none}}
+@media (prefers-reduced-motion:reduce){.in,.card,.card p span{animation:none;opacity:1}}
 </style>
 </head>
 <body>
+<div id="moon"></div>
 <canvas id="c"></canvas>
-<h1>Gửi em – mỗi lồng đèn một lời chúc</h1>
+<h1>Gửi em iu<small>mỗi lồng đèn là một lời chúc</small></h1>
 <div id="sky"></div>
-<div id="hint">Kéo để xoay 3D · Chạm lồng đèn để nhận lời chúc · <b id="cnt">0</b>/<span id="tot"></span></div>
+<div id="hint">Kéo để xoay · Chạm vào lồng đèn · đã mở <b id="cnt">0</b>/<span id="tot"></span></div>
 
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="ttl">
   <div class="card">
-    <img id="pic" alt="Hình minh họa lời chúc">
-    <div class="tx"><h2 id="ttl"></h2><p id="txt"></p></div>
+    <div class="pw"><img id="pic" alt="Hình minh họa lời chúc"></div>
+    <div class="tx"><h2 id="ttl"></h2><div class="orn" aria-hidden="true">♥</div><p id="txt"></p></div>
     <div class="nav">
       <button class="ghost" id="prev" aria-label="Lời chúc trước">‹ Trước</button>
       <button id="close">Đóng</button>
@@ -69,17 +85,18 @@ h1{position:fixed;z-index:40;top:14px;left:0;right:0;text-align:center;font:600 
    img : (tuỳ chọn) đường dẫn ảnh của bạn, ví dụ "images/anh1.jpg"
          (đặt thư mục images cạnh file index.html). Bỏ trống thì dùng hình art.
    Thêm/bớt một dòng = thêm/bớt một lồng đèn. */
+// e = biểu tượng hiện trên thân lồng đèn
 const WISHES=[
- {t:"Trăng rằm và em",x:"Ngày bé anh tưởng trăng rằm là thứ sáng nhất trên đời. Từ khi có em, anh mới biết còn một thứ sáng hơn, và nó cười với anh mỗi ngày. Chúc em một mùa Trung Thu thật vui, thật đủ đầy.",art:"moon"},
- {t:"Nhà là nơi có em",x:"Trung Thu là ngày đoàn viên, còn với anh, nhà là nơi có em. Chúc em một đêm rằm ấm áp bên gia đình, và mong mọi mùa trăng sau này anh đều được ngồi cạnh em.",art:"moon"},
- {t:"Một người đợi em về",x:"Chúc em mọi ồn ào ngoài kia đều lặng xuống. Và những lúc mệt nhất, em nhớ rằng luôn có một người ở phía sau, chẳng cần hỏi gì nhiều, chỉ cần em về là đủ.",art:"blossom"},
- {t:"Khỏe là được",x:"Anh không cần em hoàn hảo, chỉ cần em ăn ngon, ngủ đủ và khỏe mạnh, để anh còn thật nhiều năm được đi cùng em. Chúc em đừng thức khuya quá nhé.",art:"cake"},
- {t:"Ngọt như bánh nướng",x:"Chúc em một năm ngọt như chiếc bánh nướng nhân đậu xanh: chỗ nào cũng mềm, cũng thơm, cũng ấm. Còn với anh, từ khi có em, mọi thứ trong đời đều ngọt hơn hẳn.",art:"cake"},
- {t:"Anh giữ đèn cho em",x:"Em cứ mơ thật lớn, việc giữ đèn để anh lo. Dù em bay cao đến đâu, xin em nhớ có một người vẫn đứng ở dưới này, vỗ tay to hơn tất cả mọi người.",art:"lantern"},
- {t:"Cô bé trong em",x:"Anh thích cả cô bé trong em, người vẫn háo hức vì một chiếc đèn ông sao. Chúc em cứ trẻ con, cứ hồn nhiên, vì phần người lớn cứ để anh cùng em gánh.",art:"lantern"},
- {t:"Những điều rất nhỏ",x:"Anh nhớ những điều rất nhỏ về em: cách em cười, cách em nói, cả những lúc em giận dỗi. Chúc em luôn được là chính mình, vì anh thương tất cả những điều đó.",art:"blossom"},
- {t:"Lời cảm ơn",x:"Cảm ơn em đã kiên nhẫn với anh, đã ở lại cả những ngày anh chưa đủ tốt. Anh sẽ cố gắng mỗi ngày để xứng đáng hơn với sự dịu dàng của em.",art:"moon"},
- {t:"Điều ước dưới trăng",x:"Đêm nay anh chỉ xin thả một điều ước lên đèn: mong mùa trăng nào cũng có em, và mong anh còn đủ nhiều năm để thắp đèn cho em mãi. Yêu em.",art:"lantern"}
+ {t:"Trăng dịu dàng",e:"🌙",x:"Trung Thu vui vẻ nha, mong trăng hôm nay cũng dịu dàng như em vậy 🌙🤍",art:"moon"},
+ {t:"Có bánh, có tui",e:"🥮",x:"Chúc em iu một mùa Trung Thu thật vui, có bánh ngon và có tui bên cạnh 🥮💗",art:"cake"},
+ {t:"Chỉ cần em iu vui",e:"🤍",x:"Trung Thu này không cần gì nhiều, chỉ cần em iu vui là được rồi 🌙",art:"blossom"},
+ {t:"Ngủ ngon nha",e:"🥺",x:"Chúc em iu đêm Trung Thu thật ấm áp, ngủ ngon và mơ về tui nha 🥺🌙",art:"moon"},
+ {t:"Trăng đẹp, em iu đẹp hơn",e:"😚",x:"Trăng hôm nay đẹp ghê, nhưng vẫn không bằng em iu đâu 😚",art:"blossom"},
+ {t:"Nhớ tui nha",e:"💕",x:"Chúc em iu Trung Thu vui vẻ, ăn bánh nhiều nhưng đừng quên nhớ tui nha 🥮💕",art:"cake"},
+ {t:"Có em iu là đủ",e:"🤍",x:"Mong Trung Thu của em iu có thật nhiều niềm vui, còn tui thì có em iu là đủ rồi 🤍",art:"lantern"},
+ {t:"Điều nhỏ xíu dễ thương",e:"✨",x:"Trung Thu vui nha em iu, mong mọi điều nhỏ xíu dễ thương đều đến với em iu 🌙✨",art:"blossom"},
+ {t:"Người tui thương",e:"💗",x:"Chúc người tui thương một mùa Trung Thu thật bình yên và ngọt ngào 🥮💗",art:"cake"},
+ {t:"Nhìn trăng nha",e:"🌙",x:"Trung Thu rồi đó, nhớ nhìn trăng và nhớ là có người đang thương em iu nha 🌙🥺",art:"moon"}
 ];
 
 const $=s=>document.querySelector(s);
@@ -107,7 +124,7 @@ WISHES.forEach((w,i)=>{
   const b=document.createElement("button");
   b.className="lantern";b.setAttribute("aria-label","Lồng đèn "+(i+1)+": "+w.t);
   b.style.cssText=`--c1:${c1};--c2:${c2};--dl:-${(i*.7).toFixed(1)}s`;
-  b.innerHTML='<span class="in"><i class="cap"></i><i class="bd"></i><i class="cap bt"></i><i class="ts"></i></span>';
+  b.innerHTML=`<span class="in"><i class="cap"></i><i class="bd" data-e="${w.e||"♥"}"></i><i class="cap bt"></i><i class="ts"></i></span>`;
   b.onclick=e=>{if(e.detail===0||moved<8)show(i)};
   document.body.append(b);L.push(b);
 });
@@ -119,13 +136,23 @@ function show(i){
   cur=(i+N)%N;const w=WISHES[cur];
   pic.onerror=()=>{pic.onerror=null;pic.src=art(w.art)};
   pic.src=w.img||art(w.art);
-  $("#ttl").textContent=w.t;$("#txt").textContent=w.x;
+  $("#ttl").textContent=w.t;
+  $("#txt").innerHTML=w.x.split(" ").map((q,k)=>`<span style="animation-delay:${(.25+k*.035).toFixed(2)}s">${q}&nbsp;</span>`).join(" ");
+  const r=L[cur].getBoundingClientRect(),cd=$(".card");
+  cd.style.setProperty("--dx",(r.left+r.width/2-innerWidth/2)+"px");cd.style.setProperty("--dy",(r.top+r.height/2-innerHeight/2)+"px");
+  cd.style.animation="none";void cd.offsetWidth;cd.style.animation="";
   $("#modal").classList.add("on");
   document.querySelectorAll(".lantern")[cur].classList.add("seen");
-  seen.add(cur);$("#cnt").textContent=seen.size;
+  seen.add(cur);const ct=$("#cnt");if(ct)ct.textContent=seen.size;
   $("#close").focus();
 }
-const hide=()=>$("#modal").classList.remove("on");
+let fin=0;
+const hide=()=>{
+  $("#modal").classList.remove("on");
+  const r=L[cur].getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
+  if(seen.size===N&&!fin){fin=1;$("#hint").textContent="Mở hết rồi nè, tui thương em iu nhiều lắm 🥰";
+    for(let k=0;k<9;k++)setTimeout(()=>burst(W*(.1+Math.random()*.8),H*(.2+Math.random()*.5)),300+k*280)}
+};
 $("#close").onclick=hide;
 $("#prev").onclick=()=>show(cur-1);
 $("#next").onclick=()=>show(cur+1);
@@ -149,6 +176,15 @@ function build(){
   const t=tree.getContext("2d");t.scale(dpr,dpr);
   const R=mulberry(11);S=Math.min(W*1.1,H*.95);cx=W/2;gy=H*.7;cyc=gy-S*.32;
   document.documentElement.style.setProperty("--w",Math.max(40,Math.min(72,S*.075))+"px");
+  /* ánh hồng dưới gốc, đồi xa, trăng */
+  const gg=t.createRadialGradient(cx,gy+S*.05,0,cx,gy+S*.05,S*.55);gg.addColorStop(0,"rgba(255,110,190,.28)");gg.addColorStop(1,"rgba(255,110,190,0)");t.fillStyle=gg;t.fillRect(0,0,W,H);
+  [[.86,"#1a0d3a",.012,3],[.93,"#0f0726",.02,2]].forEach(([yy,col,amp,f],i)=>{
+    t.fillStyle=col;t.beginPath();t.moveTo(0,H);
+    for(let x=0;x<=W;x+=12)t.lineTo(x,H*yy-Math.sin(x/W*f*6.28+i*2)*H*amp-Math.sin(x/W*11+i)*H*.006);
+    t.lineTo(W,H);t.fill();});
+  const mr=S*.11;Object.assign($("#moon").style,{width:mr*2+"px",height:mr*2+"px",left:cx+S*.3-mr+"px",top:cyc-S*.22-mr+"px"});
+  bok=Array.from({length:22},()=>({x:Math.random()*W,y:Math.random()*H,r:20+Math.random()*60,v:4+Math.random()*10,c:Math.random()<.5?"255,190,140":"255,140,210",a:.03+Math.random()*.05}));
+  emo=Array.from({length:14},()=>({x:Math.random()*W,y:Math.random()*H,s:14+Math.random()*14,v:12+Math.random()*22,p:Math.random()*6,e:EM[(Math.random()*EM.length)|0]}));
   /* tảng đá */
   const rg=t.createLinearGradient(0,gy-S*.03,0,gy+S*.2);rg.addColorStop(0,"#7a5a4c");rg.addColorStop(1,"#2e1f26");
   t.fillStyle=rg;t.beginPath();t.ellipse(cx,gy+S*.08,S*.3,S*.11,0,0,7);t.fill();
@@ -161,7 +197,9 @@ function build(){
 }
 
 /* ---------- cây 3D: cành + hoa là điểm trong không gian, xoay theo góc "spin" ---------- */
-let segs=[],BUCK=[],px,py,pk,pz;
+let segs=[],BUCK=[],SP=[],bok=[],fx=[],emo=[],px,py,pk,pz;
+const EM=["💗","🤍","✨","🌙","🥮","💕"],EF='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function burst(x,y){for(let i=0;i<18;i++){const a=Math.random()*6.283,v=80+Math.random()*190;fx.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-140,l:1,s:14+Math.random()*16,e:EM[i%EM.length]})}}
 const COLS=Array.from({length:6},(_,i)=>`hsl(${305+i*7},85%,${64+i*4}%)`);
 function grow(R){
   const tips=[],nrm=v=>{const l=Math.hypot(v[0],v[1],v[2])||1;return[v[0]/l,v[1]/l,v[2]/l]};
@@ -184,6 +222,7 @@ function grow(R){
     let x,y,z;do{x=R()*2-1;y=R()*2-1;z=R()*2-1}while(x*x+y*y+z*z>1);
     tmp[(R()*COLS.length)|0].push(e[0]+x*rad,e[1]+y*rad,e[2]+z*rad,base*(1+R()*1.7));
   }});
+  SP=[];tmp.forEach(a=>{for(let j=0;j<a.length;j+=360)SP.push(a[j],a[j+1],a[j+2],Math.random()*6.28)});
   BUCK=tmp.map(a=>new Float32Array(a));
 }
 function pr(x,y,z,c,s){pz=x*s+z*c;pk=FOV/(FOV-pz);px=cx+(x*c-z*s)*pk;py=cyc+(S*.32-y+pz*tilt)*pk}
@@ -216,6 +255,14 @@ function drawTree(t){
   blos(false,c,s);if(back)rabbit(t,c,s);
   branches(c,s);
   if(!back)rabbit(t,c,s);blos(true,c,s);
+  /* hoa lấp lánh */
+  ctx.globalCompositeOperation="lighter";ctx.fillStyle="#fff";
+  for(let j=0;j<SP.length;j+=4){
+    pr(SP[j],SP[j+1],SP[j+2],c,s);if(pz<-S*.1)continue;
+    const a=Math.max(0,Math.sin(t*2.2+SP[j+3]));if(a<.05)continue;
+    const q=S*.012*pk*a;ctx.globalAlpha=a;ctx.fillRect(px-q,py-.5,q*2,1);ctx.fillRect(px-.5,py-q,1,q*2);ctx.beginPath();ctx.arc(px,py,q*.35,0,7);ctx.fill();
+  }
+  ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";
 }
 
 /* điều khiển: kéo để xoay, thả ra sẽ quay tiếp theo đà */
@@ -237,8 +284,12 @@ function loop(ms){
   /* sao */
   ctx.fillStyle="#fff";
   stars.forEach(s=>{ctx.globalAlpha=.35+.65*Math.abs(Math.sin(t*1.1+s.p));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill()});
+  /* bokeh */
+  ctx.globalCompositeOperation="lighter";
+  for(const o of bok){o.y-=o.v*dt*sp;if(o.y<-o.r)o.y=H+o.r;ctx.globalAlpha=o.a*(.7+.3*Math.sin(t+o.r));ctx.fillStyle=`rgb(${o.c})`;ctx.beginPath();ctx.arc(o.x+Math.sin(t*.3+o.r)*20,o.y,o.r,0,7);ctx.fill()}
+  ctx.globalCompositeOperation="source-over";ctx.globalAlpha=1;
   /* sao băng */
-  if(!shoot&&!RM&&Math.random()<dt*.15)shoot={x:Math.random()*W*.7,y:Math.random()*H*.3,l:1};
+  if(!shoot&&!RM&&Math.random()<dt*.3)shoot={x:Math.random()*W*.7,y:Math.random()*H*.3,l:1};
   if(shoot){shoot.x+=520*dt;shoot.y+=260*dt;shoot.l-=dt*1.1;
     ctx.globalAlpha=Math.max(shoot.l,0);ctx.strokeStyle="#ffeed2";ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(shoot.x,shoot.y);ctx.lineTo(shoot.x-90,shoot.y-45);ctx.stroke();
@@ -248,7 +299,8 @@ function loop(ms){
   const g=ctx.createRadialGradient(cx,cyc,0,cx,cyc,S*.5);
   g.addColorStop(0,`rgba(255,120,210,${.16+.05*Math.sin(t*1.5)})`);g.addColorStop(1,"rgba(255,120,210,0)");
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.drawImage(tree,0,0,W,H);drawTree(t);
+  const ring=b=>{ctx.strokeStyle="rgba(255,225,170,.14)";ctx.lineWidth=1;[-.32,-.08,.14].forEach((yy,i)=>{const r=S*(.36+.05*i);ctx.beginPath();ctx.ellipse(cx,cyc+S*yy,r,r*tilt,0,b?Math.PI:0,b?6.2832:Math.PI);ctx.stroke()})};
+  ring(true);ctx.drawImage(tree,0,0,W,H);drawTree(t);ring(false);
   /* cánh hoa & đom đóm xoáy 3D */
   for(const p of parts){
     if(p.k===0){p.y+=p.vy*dt*sp;if(p.y>S*.36)p.y=-S*.5}
@@ -267,6 +319,14 @@ function loop(ms){
     }
   }
   ctx.globalAlpha=1;
+  /* emoji bay lên + tim tung ra khi đóng lời chúc */
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  for(const o of emo){o.y-=o.v*dt*sp;if(o.y<-30){o.y=H+30;o.x=Math.random()*W}
+    ctx.globalAlpha=.3+.25*Math.sin(t+o.p);ctx.font=`${o.s}px ${EF}`;ctx.fillText(o.e,o.x+Math.sin(t*.8+o.p)*16,o.y)}
+  for(let i=fx.length-1;i>=0;i--){const f=fx[i];f.vy+=260*dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.l-=dt*.7;
+    if(f.l<=0){fx.splice(i,1);continue}
+    ctx.globalAlpha=Math.min(1,f.l*1.5);ctx.font=`${f.s}px ${EF}`;ctx.fillText(f.e,f.x,f.y)}
+  ctx.globalAlpha=1;
   /* lồng đèn xoáy quanh cây theo hình xoắn ốc 3D */
   const R3=S*.45;
   L.forEach((b,i)=>{
@@ -278,6 +338,7 @@ function loop(ms){
     b.style.transform=`translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) translate(-50%,-50%) scale(${k.toFixed(3)}) rotate(${(Math.sin(t+i)*4).toFixed(1)}deg) perspective(500px) rotateY(${(Math.sin(t*.8+i)*38).toFixed(0)}deg)`;
     b.style.zIndex=z>0?6+Math.round(z/S*60):1;
     b.style.opacity=(.55+.45*Math.min(1,(z+R3)/(1.6*R3))).toFixed(2);
+    b.style.filter=z<0?`blur(${(-z/R3*1.6).toFixed(1)}px)`:"none";
   });
   requestAnimationFrame(loop);
 }
